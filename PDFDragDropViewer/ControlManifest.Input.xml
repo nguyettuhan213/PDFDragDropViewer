@@ -19,20 +19,6 @@
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
     <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" />
-    <property name="labelButton" display-name-key="labelButton" description-key="Button label" of-type="SingleLine.Text" usage="bound" required="true" default-value="Choose file(s)" />
-    <property name="multiple" display-name-key="allowMultiple" description-key="Allow Multiple" of-type="TwoOptions" usage="bound" required="true" default-value="true" />
-    <property name="allowedFormats" display-name-key="allowedFormats" description-key="Allowed formats" of-type="SingleLine.Text" usage="bound" required="false" default-value="all" />
-    <property name="uploadId" display-name-key="uploadId" description-key="ID of the button" of-type="SingleLine.Text" usage="bound" required="true" default-value="xe-uploadfile-button" />
-    <property name="buttonType" display-name-key="buttonType" description-key="Button type" of-type="SingleLine.Text" usage="bound" required="false" default-value="primary" />
-    <property name="actionIcon" display-name-key="actionIcon" description-key="Button icon name" of-type="SingleLine.Text" usage="bound" required="false" default-value="ArrowUploadRegular" />
-    <property name="iconPosition" display-name-key="iconPosition" description-key="Button icon position" of-type="SingleLine.Text" usage="bound" required="false" default-value="before" />
-    <property name="files" display-name-key="Files" description-key="Selected Files" of-type="SingleLine.Text" usage="bound" />
-    <property name="dropFilesText" display-name-key="dropFilesText" description-key="Text to show on dropzone" of-type="SingleLine.Text" usage="bound" required="true" default-value="Drop files or click to select files" />
-    <property name="dropZoneBorderSize" display-name-key="dropZoneBorderSize" description-key="Dropzone border size" of-type="SingleLine.Text" usage="bound" required="true" default-value="1px" />
-    <property name="dropZoneBorderColor" display-name-key="dropZoneBorderColor" description-key="Dropzone border color" of-type="SingleLine.Text" usage="bound" required="true" default-value="grey" />
-    <property name="dropZoneTextColor" display-name-key="dropZoneTextColor" description-key="Dropzone text color" of-type="SingleLine.Text" usage="bound" required="true" default-value="black" />
-    <property name="triggerReset" display-name-key="triggerReset" description-key="Reset files array by chaning the value" of-type="SingleLine.Text" usage="bound" required="true" default-value="0" />
-    <property name="showFileList" display-name-key="showFileList" description-key="Show list of selected files" of-type="TwoOptions" usage="bound" required="true" default-value="false" />
 
     <!--
       Property node's of-type attribute can be of-type-group attribute.
