@@ -93,7 +93,7 @@ export class PDFDragDropViewer
   }
 
   private async loadPDFFromBase64(base64: string) {
-    const raw = base64.replace(/\s/g, ""); // loại bỏ whitespace nếu có
+    const raw = base64.replace(/\s/g, "");
     const binary = atob(raw);
     const length = binary.length;
     const bytes = new Uint8Array(length);
@@ -174,14 +174,51 @@ export class PDFDragDropViewer
     const imgSrc = e.dataTransfer?.getData("text/plain");
     if (!imgSrc) return;
 
+    const container = document.createElement("div");
+    container.style.position = "absolute";
+    container.style.left = `${x - 50}px`;
+    container.style.top = `${y - 50}px`;
+    container.style.width = "100px";
+    container.style.height = "100px";
+
     const img = document.createElement("img");
     img.src = imgSrc;
-    img.style.width = "100px";
-    img.style.position = "absolute";
-    img.style.left = `${x - 50}px`;
-    img.style.top = `${y - 50}px`;
+    img.style.width = "100%";
+    img.style.height = "100%";
+img.style.position = "relative";
     img.style.cursor = "grab";
     img.draggable = true;
+
+    const deleteBtn = document.createElement("div");
+    deleteBtn.textContent = "×";
+    deleteBtn.style.position = "absolute";
+    deleteBtn.style.top = "-8px";
+    deleteBtn.style.right = "-8px";
+    deleteBtn.style.width = "18px";
+    deleteBtn.style.height = "18px";
+    deleteBtn.style.borderRadius = "50%";
+    deleteBtn.style.backgroundColor = "red";
+    deleteBtn.style.color = "white";
+    deleteBtn.style.fontSize = "14px";
+    deleteBtn.style.textAlign = "center";
+    deleteBtn.style.lineHeight = "18px";
+    deleteBtn.style.cursor = "pointer";
+    deleteBtn.style.userSelect = "none";
+    deleteBtn.style.zIndex = "10";
+
+    deleteBtn.addEventListener("click", () => {
+      container.remove();
+
+      const pageNum =
+        Array.from(this.pdfContainer.children).indexOf(overlay.parentElement!) +
+        1;
+
+      if (this.imagesOnPages[pageNum]) {
+        this.imagesOnPages[pageNum] = this.imagesOnPages[pageNum].filter(
+          (i) => i.domElement !== img
+        );
+      }
+    });
 
     img.addEventListener("dragstart", (ev) => {
       this.draggingImg = img;
@@ -198,7 +235,9 @@ export class PDFDragDropViewer
       }
     });
 
-    overlay.appendChild(img);
+    container.appendChild(img);
+    container.appendChild(deleteBtn);
+    overlay.appendChild(container);
 
     const pageNum =
       Array.from(this.pdfContainer.children).indexOf(overlay.parentElement!) +
