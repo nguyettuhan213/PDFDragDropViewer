@@ -23,9 +23,12 @@ export class PDFDragDropViewer
   private pdfDoc: any = null;
   private scale: number = 1.5;
 
-  // Base64 của PDF mẫu
   private lastLoadedPdfBase64: string | null = null;
   private lastLoadedImageBase64: string | null = null;
+
+  private xLocation: string = "";
+  private yLocation: string = "";
+  private pageNumber: string = "";
 
   constructor() {}
 
@@ -209,6 +212,12 @@ export class PDFDragDropViewer
       height: 100,
       domElement: img,
     });
+
+    this.pageNumber = pageNum.toString();
+    this.xLocation = x.toString();
+    this.yLocation = y.toString();
+
+    this.notifyOutputChanged();
   }
 
   private loadDefaultImageFromBase64(base64: string) {
@@ -240,8 +249,12 @@ export class PDFDragDropViewer
     }
   }
 
-  public getOutputs(): IOutputs {
-    return {};
+  public getOutputs(): Record<string, unknown> {
+    return {
+      XLocation: this.xLocation,
+      YLocation: this.yLocation,
+      PageNumber: this.pageNumber,
+    };
   }
 
   public destroy(): void {}
