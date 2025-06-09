@@ -14,7 +14,7 @@ export class PDFDragDropViewer
   private imageFileInput: HTMLInputElement;
   private pdfContainer: HTMLDivElement;
   private imageList: HTMLDivElement;
-  private draggingImg: HTMLImageElement | null = null;
+  private draggingImg: HTMLDivElement | null = null;
   private currentOverlay: HTMLDivElement | null = null;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,28 +167,64 @@ export class PDFDragDropViewer
 
   private handleDrop(e: DragEvent, overlay: HTMLDivElement) {
     e.preventDefault();
+
     const rect = overlay.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
+    const pageNum =
+      Array.from(this.pdfContainer.children).indexOf(overlay.parentElement!) +
+      1;
+
+    // === Trường hợp di chuyển ảnh đã có ===
+    if (this.draggingImg && this.currentOverlay === overlay) {
+      const newX = Math.max(0, Math.min(x - 50, overlay.clientWidth - 100));
+      const newY = Math.max(0, Math.min(y - 50, overlay.clientHeight - 100));
+
+      this.draggingImg.style.left = `${newX}px`;
+      this.draggingImg.style.top = `${newY}px`;
+
+      const imgData = this.imagesOnPages[pageNum]?.find(
+        (i) => i.domElement === this.draggingImg
+      );
+      if (imgData) {
+        imgData.x = newX;
+        imgData.y = newY;
+      }
+
+      this.pageNumber = pageNum.toString();
+      this.xLocation = newX.toFixed(2);
+      this.yLocation = newY.toFixed(2);
+      this.notifyOutputChanged();
+
+      this.draggingImg.style.opacity = "1";
+      this.draggingImg = null;
+      this.currentOverlay = null;
+      return;
+    }
+
+    // === Trường hợp thả ảnh mới từ danh sách ===
     const imgSrc = e.dataTransfer?.getData("text/plain");
     if (!imgSrc) return;
 
+    // Container chứa ảnh và nút xóa
     const container = document.createElement("div");
     container.style.position = "absolute";
     container.style.left = `${x - 50}px`;
     container.style.top = `${y - 50}px`;
     container.style.width = "100px";
     container.style.height = "100px";
+    container.style.cursor = "grab";
+    container.draggable = true;
 
+    // Ảnh
     const img = document.createElement("img");
     img.src = imgSrc;
     img.style.width = "100%";
     img.style.height = "100%";
-img.style.position = "relative";
-    img.style.cursor = "grab";
-    img.draggable = true;
+    img.style.pointerEvents = "none"; // để container nhận sự kiện drag
 
+    // Nút xóa
     const deleteBtn = document.createElement("div");
     deleteBtn.textContent = "×";
     deleteBtn.style.position = "absolute";
@@ -208,26 +244,22 @@ img.style.position = "relative";
 
     deleteBtn.addEventListener("click", () => {
       container.remove();
-
-      const pageNum =
-        Array.from(this.pdfContainer.children).indexOf(overlay.parentElement!) +
-        1;
-
       if (this.imagesOnPages[pageNum]) {
         this.imagesOnPages[pageNum] = this.imagesOnPages[pageNum].filter(
-          (i) => i.domElement !== img
+          (i) => i.domElement !== container
         );
       }
+      this.notifyOutputChanged();
     });
 
-    img.addEventListener("dragstart", (ev) => {
-      this.draggingImg = img;
+    container.addEventListener("dragstart", (ev) => {
+      this.draggingImg = container;
       this.currentOverlay = overlay;
-      img.style.opacity = "0.5";
+      container.style.opacity = "0.5";
       ev.dataTransfer?.setData("text/plain", "");
     });
 
-    img.addEventListener("dragend", () => {
+    container.addEventListener("dragend", () => {
       if (this.draggingImg) {
         this.draggingImg.style.opacity = "1";
         this.draggingImg = null;
@@ -239,9 +271,6 @@ img.style.position = "relative";
     container.appendChild(deleteBtn);
     overlay.appendChild(container);
 
-    const pageNum =
-      Array.from(this.pdfContainer.children).indexOf(overlay.parentElement!) +
-      1;
     if (!this.imagesOnPages[pageNum]) this.imagesOnPages[pageNum] = [];
     this.imagesOnPages[pageNum].push({
       src: imgSrc,
@@ -249,13 +278,12 @@ img.style.position = "relative";
       y: y - 50,
       width: 100,
       height: 100,
-      domElement: img,
+      domElement: container,
     });
 
     this.pageNumber = pageNum.toString();
-    this.xLocation = x.toString();
-    this.yLocation = y.toString();
-
+    this.xLocation = (x - 50).toFixed(2);
+    this.yLocation = (y - 50).toFixed(2);
     this.notifyOutputChanged();
   }
 
