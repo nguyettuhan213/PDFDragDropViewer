@@ -58,7 +58,7 @@ export class PDFDragDropViewer
     this.pdfFileInput = document.createElement("input");
     this.pdfFileInput.type = "file";
     this.pdfFileInput.accept = "application/pdf";
-    this.pdfFileInput.style.display = "none"; // Ẩn vì ta load PDF sẵn
+    this.pdfFileInput.style.display = "none";
     this.container.appendChild(this.pdfFileInput);
 
     this.pdfContainer = document.createElement("div");
@@ -207,7 +207,6 @@ export class PDFDragDropViewer
     const imgSrc = e.dataTransfer?.getData("text/plain");
     if (!imgSrc) return;
 
-    // Container chứa ảnh và nút xóa
     const container = document.createElement("div");
     container.style.position = "absolute";
     container.style.left = `${x - 50}px`;
@@ -217,14 +216,12 @@ export class PDFDragDropViewer
     container.style.cursor = "grab";
     container.draggable = true;
 
-    // Ảnh
     const img = document.createElement("img");
     img.src = imgSrc;
     img.style.width = "100%";
     img.style.height = "100%";
-    img.style.pointerEvents = "none"; // để container nhận sự kiện drag
+    img.style.pointerEvents = "none"; 
 
-    // Nút xóa
     const deleteBtn = document.createElement("div");
     deleteBtn.textContent = "×";
     deleteBtn.style.position = "absolute";
