@@ -18,13 +18,12 @@
       -->
     </external-service-usage>
     <!-- property node identifies a specific, configurable piece of data that the control expects from CDS -->
-    <property name="sampleProperty" display-name-key="Property_Display_Key" description-key="Property_Desc_Key" of-type="SingleLine.Text" usage="bound" required="true" />
     <property name="InFilePDFContent" display-name-key="InFilePDFContent" description-key="InFilePDFContent" of-type="SingleLine.Text" usage="bound" required="true" />
     <property name="InFileImageContent" display-name-key="InFileImageContent" description-key="InFileImageContent" of-type="SingleLine.Text" usage="bound" required="true" />
-    <property name="XLocation" display-name-key="XLocation" description-key="XLocation" of-type="SingleLine.Text" usage="bound" required="false" />
-    <property name="YLocation" display-name-key="YLocation" description-key="YLocation" of-type="SingleLine.Text" usage="bound" required="false" />
-    <property name="PageNumber" display-name-key="PageNumber" description-key="PageNumber" of-type="SingleLine.Text" usage="bound" required="false" />
-    <property name="ImagesData" display-name-key="ImagesData" description-key="ImagesData" of-type="SingleLine.Text" usage="bound" required="false" />
+    <property name="XLocation" display-name-key="XLocation" description-key="XLocation" of-type="SingleLine.Text" usage="output" required="false" />
+    <property name="YLocation" display-name-key="YLocation" description-key="YLocation" of-type="SingleLine.Text" usage="output" required="false" />
+    <property name="PageNumber" display-name-key="PageNumber" description-key="PageNumber" of-type="SingleLine.Text" usage="output" required="false" />
+    <property name="ImagesData" display-name-key="ImagesData" description-key="ImagesData" of-type="SingleLine.Text" usage="output" required="false" />
     <property name="DefaultImages" display-name-key="DefaultImages" description-key="DefaultImages" of-type="SingleLine.Text" usage="bound" required="false" />
 
     <!--

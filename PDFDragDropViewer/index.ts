@@ -74,8 +74,8 @@ export class PDFDragDropViewer
 
     this.pdfContainer = document.createElement("div");
     this.pdfContainer.id = "pdf-container";
-    this.pdfContainer.style.width = "800px";
-    this.pdfContainer.style.height = "600px";
+    this.pdfContainer.style.width = "910px";
+    this.pdfContainer.style.height = "1000px";
     this.pdfContainer.style.border = "1px solid #ccc";
     this.pdfContainer.style.overflowY = "scroll";
     this.container.appendChild(this.pdfContainer);
