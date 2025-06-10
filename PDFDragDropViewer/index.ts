@@ -4,6 +4,16 @@ import * as React from "react";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare let pdfjsLib: any;
 
+interface ImageItem {
+  height: string;
+  name: string;
+  pageNum: string;
+  src: string;
+  width: string;
+  x: string;
+  y: string;
+}
+
 export class PDFDragDropViewer
   implements ComponentFramework.StandardControl<IInputs, IOutputs>
 {
@@ -25,6 +35,7 @@ export class PDFDragDropViewer
 
   private lastLoadedPdfBase64: string | null = null;
   private lastLoadedImageBase64: string | null = null;
+  private defaultImages: ImageItem[] = [];
 
   private xLocation: string = "";
   private yLocation: string = "";
@@ -102,6 +113,7 @@ export class PDFDragDropViewer
     }
 
     await this.loadPDF(bytes.buffer);
+    this.renderDefaultImagesToPDF();
   }
 
   private async loadPDF(data: ArrayBuffer) {
@@ -220,7 +232,7 @@ export class PDFDragDropViewer
     img.src = imgSrc;
     img.style.width = "100%";
     img.style.height = "100%";
-    img.style.pointerEvents = "none"; 
+    img.style.pointerEvents = "none";
 
     const deleteBtn = document.createElement("div");
     deleteBtn.textContent = "×";
@@ -298,9 +310,112 @@ export class PDFDragDropViewer
     this.imageList.appendChild(img);
   }
 
+  private renderDefaultImagesToPDF() {
+    if (!this.defaultImages || !Array.isArray(this.defaultImages)) return;
+
+    this.defaultImages.forEach((img) => {
+      const pageNum = parseInt(img.pageNum, 10);
+      const x = parseFloat(img.x);
+      const y = parseFloat(img.y);
+      const width = parseFloat(img.width);
+      const height = parseFloat(img.height);
+
+      const pageDiv = this.pdfContainer.children[pageNum - 1] as HTMLDivElement;
+      if (!pageDiv) return; // Loại bỏ nếu pageNum > số trang
+      const overlay = pageDiv.querySelector("div") as HTMLDivElement;
+      if (!overlay) return;
+
+      const container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.left = `${x}px`;
+      container.style.top = `${y}px`;
+      container.style.width = `${width}px`;
+      container.style.height = `${height}px`;
+      container.style.cursor = "grab";
+      container.draggable = true;
+
+      const imgElement = document.createElement("img");
+      imgElement.src = img.src;
+      imgElement.src = img.src.startsWith("data:")
+        ? img.src
+        : "data:image/png;base64," + img.src;
+      imgElement.style.width = "100%";
+      imgElement.style.height = "100%";
+      imgElement.style.pointerEvents = "none";
+
+      const deleteBtn = document.createElement("div");
+      deleteBtn.textContent = "×";
+      deleteBtn.style.position = "absolute";
+      deleteBtn.style.top = "-8px";
+      deleteBtn.style.right = "-8px";
+      deleteBtn.style.width = "18px";
+      deleteBtn.style.height = "18px";
+      deleteBtn.style.borderRadius = "50%";
+      deleteBtn.style.backgroundColor = "red";
+      deleteBtn.style.color = "white";
+      deleteBtn.style.fontSize = "14px";
+      deleteBtn.style.textAlign = "center";
+      deleteBtn.style.lineHeight = "18px";
+      deleteBtn.style.cursor = "pointer";
+      deleteBtn.style.userSelect = "none";
+      deleteBtn.style.zIndex = "10";
+
+      deleteBtn.addEventListener("click", () => {
+        container.remove();
+        if (this.imagesOnPages[pageNum]) {
+          this.imagesOnPages[pageNum] = this.imagesOnPages[pageNum].filter(
+            (i) => i.domElement !== container
+          );
+        }
+        this.notifyOutputChanged();
+      });
+
+      container.addEventListener("dragstart", (ev) => {
+        this.draggingImg = container;
+        this.currentOverlay = overlay;
+        container.style.opacity = "0.5";
+        ev.dataTransfer?.setData("text/plain", "");
+      });
+
+      container.addEventListener("dragend", () => {
+        if (this.draggingImg) {
+          this.draggingImg.style.opacity = "1";
+          this.draggingImg = null;
+          this.currentOverlay = null;
+        }
+      });
+
+      container.appendChild(imgElement);
+      container.appendChild(deleteBtn);
+      overlay.appendChild(container);
+
+      if (!this.imagesOnPages[pageNum]) this.imagesOnPages[pageNum] = [];
+      this.imagesOnPages[pageNum].push({
+        src: img.src,
+        x,
+        y,
+        width,
+        height,
+        domElement: container,
+      });
+    });
+  }
+
   public updateView(context: ComponentFramework.Context<IInputs>): void {
     const pdfBase64 = context.parameters.InFilePDFContent.raw ?? "";
     const imgBase64 = context.parameters.InFileImageContent.raw ?? "";
+    if (context.parameters.DefaultImages.raw) {
+      try {
+        const parsed = JSON.parse(
+          context.parameters.DefaultImages.raw
+        ) as ImageItem[];
+        this.defaultImages = parsed;
+        console.log("this.defaultImages:" + this.defaultImages);
+      } catch (err) {
+        console.error("Lỗi parse DefaultImages:", err);
+        this.defaultImages = [];
+      }
+    }
 
     if (pdfBase64 && pdfBase64 !== this.lastLoadedPdfBase64) {
       this.lastLoadedPdfBase64 = pdfBase64;
@@ -318,7 +433,7 @@ export class PDFDragDropViewer
       XLocation: this.xLocation,
       YLocation: this.yLocation,
       PageNumber: this.pageNumber,
-      ImagesData: JSON.stringify(this.imagesOnPages)
+      ImagesData: JSON.stringify(this.imagesOnPages),
     };
   }
 
