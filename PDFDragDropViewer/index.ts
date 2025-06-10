@@ -318,6 +318,7 @@ export class PDFDragDropViewer
       XLocation: this.xLocation,
       YLocation: this.yLocation,
       PageNumber: this.pageNumber,
+      ImagesData: JSON.stringify(this.imagesOnPages)
     };
   }
 

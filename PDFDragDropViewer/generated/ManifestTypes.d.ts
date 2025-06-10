@@ -10,6 +10,7 @@ export interface IInputs {
     XLocation: ComponentFramework.PropertyTypes.StringProperty;
     YLocation: ComponentFramework.PropertyTypes.StringProperty;
     PageNumber: ComponentFramework.PropertyTypes.StringProperty;
+    ImagesData: ComponentFramework.PropertyTypes.StringProperty;
 }
 export interface IOutputs {
     sampleProperty?: string;
@@ -18,4 +19,5 @@ export interface IOutputs {
     XLocation?: string;
     YLocation?: string;
     PageNumber?: string;
+    ImagesData?: string;
 }
